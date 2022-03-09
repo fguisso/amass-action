@@ -1,0 +1,47 @@
+name: "OWASP Amass Enum"
+description: "In-depth Attack Surface Mapping and Asset Discovery"
+branding:
+  icon: "eye"
+  color: "gray-dark"
+
+inputs:
+  domains:
+    description: "Domain names separated by commas (can be used multiple times)"
+    required: true
+
+  passive:
+    description: "Disable DNS resolution of names and dependent features"
+    required: false
+    default: fasle
+
+  brute:
+    description: "Execute brute forcing after searches"
+    required: false
+    default: fasle
+  
+  output:
+    description: "Path to the text file containing terminal stdout/stderr"
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - run: |
+        echo "::group::Install Amass with go get"
+        [ ! -x /home/runner/go/bin/amass ] && go install -v github.com/OWASP/Amass/v3/...@master
+        echo "/home/runner/go/bin/" >> $GITHUB_PATH
+        echo "::endgroup::"
+      shell: bash
+    - run: |
+        ${{ inputs.passive }} && echo "passive=-active" >> $GITHUB_ENV
+        ${{ inputs.brute }} && echo "brute=-brute" >> $GITHUB_ENV
+        [ ! -z ${{ inputs.domains }} ] && echo "domains=-d ${{ inputs.domains}}" >> $GITHUB_ENV
+        [ ! -z ${{ inputs.output }} ] && echo "output=-o ${{ inputs.output}}" >> $GITHUB_ENV || echo "output=-o amass.txt" >> $GITHUB_ENV
+      shell: bash
+    - run: |
+        amass enum \
+          ${{ env.passive }} \
+          ${{ env.brute }} \
+          ${{ env.domains }} \
+          ${{ env.output }}
+      shell: bash
