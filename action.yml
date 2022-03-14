@@ -33,15 +33,19 @@ runs:
         echo "::endgroup::"
       shell: bash
     - run: |
-        ${{ inputs.passive }} && echo "passive=-active" >> $GITHUB_ENV
-        ${{ inputs.brute }} && echo "brute=-brute" >> $GITHUB_ENV
-        [ ! -z ${{ inputs.domains }} ] && echo "domains=-d ${{ inputs.domains}}" >> $GITHUB_ENV
-        [ ! -z ${{ inputs.output }} ] && echo "output=-o ${{ inputs.output}}" >> $GITHUB_ENV || echo "output=-o amass.txt" >> $GITHUB_ENV
+        echo "::group::Setting up Amass parameters"
+        ${{ inputs.passive }} && echo "amass-passive=-active" >> $GITHUB_ENV
+        ${{ inputs.brute }} && echo "amass-brute=-brute" >> $GITHUB_ENV
+        [ ! -z ${{ inputs.domains }} ] && echo "amass-domains=-d ${{ inputs.domains}}" >> $GITHUB_ENV
+        [ ! -z ${{ inputs.output }} ] && echo "amass-output=-o ${{ inputs.output}}" >> $GITHUB_ENV || echo "output=-o amass.txt" >> $GITHUB_ENV
+        echo "::endgroup::"
       shell: bash
     - run: |
+        echo "::group::Running Amass..."
         amass enum \
-          ${{ env.passive }} \
-          ${{ env.brute }} \
-          ${{ env.domains }} \
-          ${{ env.output }}
+          ${{ env.amass-passive }} \
+          ${{ env.amass-brute }} \
+          ${{ env.amass-domains }} \
+          ${{ env.amass-output }}
+        echo "::endgroup::"
       shell: bash
