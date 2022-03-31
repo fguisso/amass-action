@@ -12,40 +12,17 @@ inputs:
   passive:
     description: "Disable DNS resolution of names and dependent features"
     required: false
-    default: fasle
+    default: false
 
   brute:
     description: "Execute brute forcing after searches"
     required: false
-    default: fasle
+    default: false
   
   output:
     description: "Path to the text file containing terminal stdout/stderr"
     required: false
 
 runs:
-  using: "composite"
-  steps:
-    - run: |
-        echo "::group::Install Amass with go get"
-        [ ! -x /home/runner/go/bin/amass ] && go install -v github.com/OWASP/Amass/v3/...@master
-        echo "/home/runner/go/bin/" >> $GITHUB_PATH
-        echo "::endgroup::"
-      shell: bash
-    - run: |
-        echo "::group::Setting up Amass parameters"
-        ${{ inputs.passive }} && echo "amass-passive=-active" >> $GITHUB_ENV
-        ${{ inputs.brute }} && echo "amass-brute=-brute" >> $GITHUB_ENV
-        [ ! -z ${{ inputs.domains }} ] && echo "amass-domains=-d ${{ inputs.domains}}" >> $GITHUB_ENV
-        [ ! -z ${{ inputs.output }} ] && echo "amass-output=-o ${{ inputs.output}}" >> $GITHUB_ENV || echo "output=-o amass.txt" >> $GITHUB_ENV
-        echo "::endgroup::"
-      shell: bash
-    - run: |
-        echo "::group::Running Amass..."
-        amass enum \
-          ${{ env.amass-passive }} \
-          ${{ env.amass-brute }} \
-          ${{ env.amass-domains }} \
-          ${{ env.amass-output }}
-        echo "::endgroup::"
-      shell: bash
+  using: 'node16'
+  main: 'dist/index.js'
