@@ -12,12 +12,12 @@ inputs:
   passive:
     description: "Disable DNS resolution of names and dependent features"
     required: false
-    default: fasle
+    default: false
 
   brute:
     description: "Execute brute forcing after searches"
     required: false
-    default: fasle
+    default: false
   
   output:
     description: "Path to the text file containing terminal stdout/stderr"
