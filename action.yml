@@ -26,6 +26,9 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
     - run: |
         echo "::group::Install Amass with go get"
         [ ! -x /home/runner/go/bin/amass ] && go install -v github.com/OWASP/Amass/v3/...@master

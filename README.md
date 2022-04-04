@@ -29,9 +29,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-go@v2
-        with:
-          go-version: 1.17
 
       - name: Amass - Enumeration
         uses: fguisso/amass-action@main
