@@ -12430,8 +12430,8 @@ function getPackage() {
 
 async function downloadAndInstall(version) {
 	const toolName = "amass";
-	
-	const octokit = github.getOctokit();
+
+	const octokit = github.getOctokit('');
 	const { release } = await octokit.rest.repos.getLatestRelease({
 		owner: "OWASP",
 		repo: "Amass",
