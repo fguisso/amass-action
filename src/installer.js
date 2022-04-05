@@ -2,6 +2,7 @@ import fs from 'fs';
 import * as core from '@actions/core';
 import * as tc from '@actions/tool-cache';
 import * as github from '@actions/github';
+import { createUnauthenticatedAuth } from '@octokit/auth-unauthenticated';
 
 const ROOT_URL = "https://github.com/OWASP/Amass/releases/download";
 
@@ -22,10 +23,10 @@ export function getPackage() {
 export async function downloadAndInstall(version) {
 	const toolName = "amass";
 
-	const octokit = github.getOctokit({ auth: {
-		type: 'unauthenticated',
-		reason: 'Handling an simples request to get latest release.',
-	}});
+	const auth = createUnauthenticatedAuth({
+		reason: 'Handling latest release.'
+	});
+	const octokit = github.getOctokit(auth);
 	const { release } = await octokit.rest.repos.getLatestRelease({
 		owner: "OWASP",
 		repo: "Amass",

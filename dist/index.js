@@ -3717,6 +3717,92 @@ exports.createTokenAuth = createTokenAuth;
 
 /***/ }),
 
+/***/ 9567:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+var __webpack_unused_export__;
+
+
+__webpack_unused_export__ = ({ value: true });
+
+async function auth(reason) {
+  return {
+    type: "unauthenticated",
+    reason
+  };
+}
+
+function isRateLimitError(error) {
+  if (error.status !== 403) {
+    return false;
+  }
+  /* istanbul ignore if */
+
+
+  if (!error.response) {
+    return false;
+  }
+
+  return error.response.headers["x-ratelimit-remaining"] === "0";
+}
+
+const REGEX_ABUSE_LIMIT_MESSAGE = /\babuse\b/i;
+function isAbuseLimitError(error) {
+  if (error.status !== 403) {
+    return false;
+  }
+
+  return REGEX_ABUSE_LIMIT_MESSAGE.test(error.message);
+}
+
+async function hook(reason, request, route, parameters) {
+  const endpoint = request.endpoint.merge(route, parameters);
+  return request(endpoint).catch(error => {
+    if (error.status === 404) {
+      error.message = `Not found. May be due to lack of authentication. Reason: ${reason}`;
+      throw error;
+    }
+
+    if (isRateLimitError(error)) {
+      error.message = `API rate limit exceeded. This maybe caused by the lack of authentication. Reason: ${reason}`;
+      throw error;
+    }
+
+    if (isAbuseLimitError(error)) {
+      error.message = `You have triggered an abuse detection mechanism. This maybe caused by the lack of authentication. Reason: ${reason}`;
+      throw error;
+    }
+
+    if (error.status === 401) {
+      error.message = `Unauthorized. "${endpoint.method} ${endpoint.url}" failed most likely due to lack of authentication. Reason: ${reason}`;
+      throw error;
+    }
+
+    if (error.status >= 400 && error.status < 500) {
+      error.message = error.message.replace(/\.?$/, `. May be caused by lack of authentication (${reason}).`);
+    }
+
+    throw error;
+  });
+}
+
+const createUnauthenticatedAuth = function createUnauthenticatedAuth(options) {
+  if (!options || !options.reason) {
+    throw new Error("[@octokit/auth-unauthenticated] No reason passed to createUnauthenticatedAuth");
+  }
+
+  return Object.assign(auth.bind(null, options.reason), {
+    hook: hook.bind(null, options.reason)
+  });
+};
+
+exports.D = createUnauthenticatedAuth;
+//# sourceMappingURL=index.js.map
+
+
+/***/ }),
+
 /***/ 6762:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
@@ -12406,7 +12492,10 @@ var external_fs_default = /*#__PURE__*/__nccwpck_require__.n(external_fs_);
 var tool_cache = __nccwpck_require__(7784);
 // EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
 var github = __nccwpck_require__(5438);
+// EXTERNAL MODULE: ./node_modules/@octokit/auth-unauthenticated/dist-node/index.js
+var dist_node = __nccwpck_require__(9567);
 ;// CONCATENATED MODULE: ./src/installer.js
+
 
 
 
@@ -12431,10 +12520,10 @@ function getPackage() {
 async function downloadAndInstall(version) {
 	const toolName = "amass";
 
-	const octokit = github.getOctokit({ auth: {
-		type: 'unauthenticated',
-		reason: 'Handling an simples request to get latest release.',
-	}});
+	const auth = (0,dist_node/* createUnauthenticatedAuth */.D)({
+		reason: 'Handling latest release.'
+	});
+	const octokit = github.getOctokit(auth);
 	const { release } = await octokit.rest.repos.getLatestRelease({
 		owner: "OWASP",
 		repo: "Amass",
