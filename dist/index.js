@@ -12431,7 +12431,10 @@ function getPackage() {
 async function downloadAndInstall(version) {
 	const toolName = "amass";
 
-	const octokit = github.getOctokit('');
+	const octokit = github.getOctokit({ auth: {
+		type: 'unauthenticated',
+		reason: 'Handling an simples request to get latest release.',
+	}});
 	const { release } = await octokit.rest.repos.getLatestRelease({
 		owner: "OWASP",
 		repo: "Amass",
