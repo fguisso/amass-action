@@ -1,6 +1,7 @@
 import fs from 'fs';
 import * as core from '@actions/core';
 import * as tc from '@actions/tool-cache';
+import * as github from '@actions/github';
 
 const ROOT_URL = "https://github.com/OWASP/Amass/releases/download";
 
@@ -20,14 +21,19 @@ export function getPackage() {
 
 export async function downloadAndInstall(version) {
 	const toolName = "amass";
-    const latest = "v3.19.1";
+	
+	const octokit = github.getOctokit();
+	const { release } = await octokit.rest.repos.getLatestRelease({
+		owner: "OWASP",
+		repo: "Amass",
+	  });
 
-	core.startGroup(`Download and install Amass ${version}`);
+	core.startGroup(`Download and install Amass ${version ? version : release.tag_name }`);
 
 	const packageName = getPackage();
-	const url = `${ROOT_URL}/${version ? version : latest}/${packageName}.zip`;
+	const url = `${ROOT_URL}/${version ? version : release.tag_name }/${packageName}.zip`;
 
-	core.info(`Download version ${version ? version : latest} from ${url}.`);
+	core.info(`Download version ${version ? version : release.tag_name } from ${url}.`);
 
 	const downloadDir = await tc.downloadTool(url);
 	if (downloadDir == null) {
@@ -42,7 +48,7 @@ export async function downloadAndInstall(version) {
 	const binPath = `${installDir}/${packageName}/${toolName}`
 	fs.chmodSync(binPath, "777");
 
-	core.info(`Amass ${version ? version : latest} was successfully installed to ${installDir}.`);
+	core.info(`Amass ${version ? version : release.tag_name } was successfully installed to ${installDir}.`);
 	core.endGroup();
 	return binPath
 }
