@@ -1,5 +1,6 @@
 import fs from 'fs';
 import https from 'https';
+import os from 'os';
 import * as core from '@actions/core';
 import * as tc from '@actions/tool-cache';
 

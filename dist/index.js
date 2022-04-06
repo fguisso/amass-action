@@ -5621,6 +5621,9 @@ var external_fs_default = /*#__PURE__*/__nccwpck_require__.n(external_fs_);
 // EXTERNAL MODULE: external "https"
 var external_https_ = __nccwpck_require__(687);
 var external_https_default = /*#__PURE__*/__nccwpck_require__.n(external_https_);
+// EXTERNAL MODULE: external "os"
+var external_os_ = __nccwpck_require__(37);
+var external_os_default = /*#__PURE__*/__nccwpck_require__.n(external_os_);
 // EXTERNAL MODULE: ./node_modules/@actions/tool-cache/lib/tool-cache.js
 var tool_cache = __nccwpck_require__(784);
 ;// CONCATENATED MODULE: ./src/installer.js
@@ -5629,10 +5632,11 @@ var tool_cache = __nccwpck_require__(784);
 
 
 
+
 const ROOT_URL = "https://github.com/OWASP/Amass/releases/download";
 
 function getPackage() {
-    switch (os.type()) {
+    switch (external_os_default().type()) {
         case 'Windows_NT':
             return `/amass_windows_amd64`;
         case 'Darwin':
