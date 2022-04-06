@@ -1,12 +1,11 @@
 import fs from 'fs';
+import https from 'https';
 import * as core from '@actions/core';
 import * as tc from '@actions/tool-cache';
-import * as github from '@actions/github';
-import { createUnauthenticatedAuth } from '@octokit/auth-unauthenticated';
 
 const ROOT_URL = "https://github.com/OWASP/Amass/releases/download";
 
-export function getPackage() {
+function getPackage() {
     switch (os.type()) {
         case 'Windows_NT':
             return `/amass_windows_amd64`;
@@ -20,24 +19,32 @@ export function getPackage() {
     }
 }
 
+function getLatestVersion() {
+	let data = [];
+	https.get({
+		hostname: 'api.github.com',
+		path: '/repos/OWASP/Amass/releases/latest',
+		headers: { 'User-Agent': 'Github Actions' }
+	}, res => {
+		res.on('data', chunk => data += chunk );
+		res.on('close', () => data = JSON.parse(data));
+	}).on('error', err => {
+		console.log('HTTPS Error: ', err.message);
+	});
+
+	return data.tag_name;
+}
+
 export async function downloadAndInstall(version) {
 	const toolName = "amass";
+	const latest = await getLatestVersion();
 
-	const auth = createUnauthenticatedAuth({
-		reason: 'Handling latest release.'
-	});
-	const octokit = github.getOctokit(auth);
-	const { release } = await octokit.rest.repos.getLatestRelease({
-		owner: "OWASP",
-		repo: "Amass",
-	  });
-
-	core.startGroup(`Download and install Amass ${version ? version : release.tag_name }`);
+	core.startGroup(`Download and install Amass ${version ? version : latest }`);
 
 	const packageName = getPackage();
-	const url = `${ROOT_URL}/${version ? version : release.tag_name }/${packageName}.zip`;
+	const url = `${ROOT_URL}/${version ? version : latest }/${packageName}.zip`;
 
-	core.info(`Download version ${version ? version : release.tag_name } from ${url}.`);
+	core.info(`Download version ${version ? version : latest } from ${url}.`);
 
 	const downloadDir = await tc.downloadTool(url);
 	if (downloadDir == null) {
@@ -52,7 +59,7 @@ export async function downloadAndInstall(version) {
 	const binPath = `${installDir}/${packageName}/${toolName}`
 	fs.chmodSync(binPath, "777");
 
-	core.info(`Amass ${version ? version : release.tag_name } was successfully installed to ${installDir}.`);
+	core.info(`Amass ${version ? version : latest } was successfully installed to ${installDir}.`);
 	core.endGroup();
 	return binPath
 }
