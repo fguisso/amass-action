@@ -29,7 +29,7 @@ async function getLatestInfo() {
 			headers: { 'User-Agent': 'Github Actions' }
 		}, res => {
 			res.on('data', chunk => data.push(chunk));
-			res.on('close', () => resolve(JSON.parse(data).tag_name));
+			res.on('close', () => resolve(JSON.parse(data)));
 		}).on('error', err => {
 			reject(err);
 		});
