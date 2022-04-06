@@ -5662,7 +5662,7 @@ async function getLatestVersion() {
 		console.log('HTTPS Error: ', err.message);
 	});
 
-	return data.tag_name;
+	return data;
 }
 
 async function downloadAndInstall(version) {
