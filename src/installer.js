@@ -21,23 +21,25 @@ function getPackage() {
 }
 
 async function getLatestVersion() {
-	let data = [];
-	https.get({
-		hostname: 'api.github.com',
-		path: '/repos/OWASP/Amass/releases/latest',
-		headers: { 'User-Agent': 'Github Actions' }
-	}, res => {
-		res.on('data', chunk => data += chunk );
-	}).on('error', err => {
-		console.log('HTTPS Error: ', err.message);
+	return new Promise((resolve, reject) => {
+		let data = [];
+		https.get({
+			hostname: 'api.github.com',
+			path: '/repos/OWASP/Amass/releases/latest',
+			headers: { 'User-Agent': 'Github Actions' }
+		}, res => {
+			res.on('data', chunk => data.push(chunk));
+			res.on('close', () => resolve(JSON.parse(data).tag_name));
+		}).on('error', err => {
+			reject(err);
+		});
 	});
-	return JSON.parse(data);
-}
+};
 
 export async function downloadAndInstall(version) {
 	const toolName = "amass";
 	const latest = await getLatestVersion();
-	console.log(latest.tag_name);
+	console.log(latest);
 	console.log(version ? version : latest);
 
 	core.startGroup(`Download and install Amass ${version ? version : latest }`);
