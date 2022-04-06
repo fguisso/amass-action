@@ -28,12 +28,10 @@ async function getLatestVersion() {
 		headers: { 'User-Agent': 'Github Actions' }
 	}, res => {
 		res.on('data', chunk => data += chunk );
-		res.on('close', () => data = JSON.parse(data));
+		res.on('close', () => { return JSON.parse(data) });
 	}).on('error', err => {
 		console.log('HTTPS Error: ', err.message);
 	});
-
-	return data;
 }
 
 export async function downloadAndInstall(version) {
