@@ -5665,8 +5665,8 @@ async function getLatestVersion() {
 
 async function downloadAndInstall(version) {
 	const toolName = "amass";
-	const latest = await getLatestVersion().tag_name;
-	console.log(latest);
+	const latest = await getLatestVersion();
+	console.log(latest.tag_name);
 	console.log(version ? version : latest);
 
 	core.startGroup(`Download and install Amass ${version ? version : latest }`);
