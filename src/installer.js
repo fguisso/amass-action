@@ -33,7 +33,7 @@ async function getLatestVersion() {
 	}).on('error', err => {
 		console.log('HTTPS Error: ', err.message);
 	});
-	return release;
+	return release.tag_name;
 }
 
 export async function downloadAndInstall(version) {
