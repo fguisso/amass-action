@@ -5658,7 +5658,7 @@ async function getLatestInfo() {
 			headers: { 'User-Agent': 'Github Actions' }
 		}, res => {
 			res.on('data', chunk => data.push(chunk));
-			res.on('close', () => resolve(JSON.parse(data)));
+			res.on('close', () => { resolve(JSON.parse(data)); });
 		}).on('error', err => {
 			reject(err);
 		});
