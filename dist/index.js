@@ -5662,19 +5662,19 @@ function getLatestVersion() {
 		console.log('HTTPS Error: ', err.message);
 	});
 
-	return data.tag_name;
+	return data;
 }
 
 async function downloadAndInstall(version) {
 	const toolName = "amass";
 	const latest = await getLatestVersion();
 
-	core.startGroup(`Download and install Amass ${version ? version : latest }`);
+	core.startGroup(`Download and install Amass ${version ? version : latest.tag_name }`);
 
 	const packageName = getPackage();
-	const url = `${ROOT_URL}/${version ? version : latest }/${packageName}.zip`;
+	const url = `${ROOT_URL}/${version ? version : latest.tag_name }/${packageName}.zip`;
 
-	core.info(`Download version ${version ? version : latest } from ${url}.`);
+	core.info(`Download version ${version ? version : latest.tag_name } from ${url}.`);
 
 	const downloadDir = await tool_cache.downloadTool(url);
 	if (downloadDir == null) {
@@ -5689,7 +5689,7 @@ async function downloadAndInstall(version) {
 	const binPath = `${installDir}/${packageName}/${toolName}`
 	external_fs_default().chmodSync(binPath, "777");
 
-	core.info(`Amass ${version ? version : latest } was successfully installed to ${installDir}.`);
+	core.info(`Amass ${version ? version : latest.tag_name } was successfully installed to ${installDir}.`);
 	core.endGroup();
 	return binPath
 }
