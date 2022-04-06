@@ -5657,8 +5657,8 @@ async function getLatestInfo() {
 			path: '/repos/OWASP/Amass/releases/latest',
 			headers: { 'User-Agent': 'Github Actions' }
 		}, res => {
-			res.on('data', chunk => data += chunk);
-			res.on('close', () => resolve(JSON.parse(data)));
+			res.on('data', chunk => data.push(chunk));
+			res.on('close', () => resolve(JSON.parse(data.join(''))));
 		}).on('error', err => {
 			reject(err);
 		});
@@ -5668,7 +5668,6 @@ async function getLatestInfo() {
 async function downloadAndInstall(version) {
 	const toolName = "amass";
 	const release = await getLatestInfo();
-	console.log(release.tag_name);
 
 	core.startGroup(`Download and install Amass ${version ? version : release.tag_name }`);
 
