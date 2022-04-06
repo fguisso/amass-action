@@ -5651,16 +5651,18 @@ function getPackage() {
 
 async function getLatestVersion() {
 	let data = [];
+	let release = {};
 	external_https_default().get({
 		hostname: 'api.github.com',
 		path: '/repos/OWASP/Amass/releases/latest',
 		headers: { 'User-Agent': 'Github Actions' }
 	}, res => {
 		res.on('data', chunk => data += chunk );
-		res.on('close', () => { return JSON.parse(data) });
+		res.on('close', () => { release = JSON.parse(data) });
 	}).on('error', err => {
 		console.log('HTTPS Error: ', err.message);
 	});
+	return release;
 }
 
 async function downloadAndInstall(version) {
