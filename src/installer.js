@@ -40,7 +40,6 @@ export async function downloadAndInstall(version) {
 	const toolName = "amass";
 	const latest = await getLatestVersion();
 	console.log(latest);
-	console.log(version ? version : latest);
 
 	core.startGroup(`Download and install Amass ${version ? version : latest }`);
 
