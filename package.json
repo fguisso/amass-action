@@ -1,0 +1,30 @@
+{
+  "name": "amass-action",
+  "version": "1.0.0",
+  "description": "In-depth Attack Surface Mapping and Asset Discovery for Github Actions",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "ncc build src/index.js --license licenses.txt"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fguisso/amass-action.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fguisso/amass-action/issues"
+  },
+  "homepage": "https://github.com/fguisso/amass-action#readme",
+  "dependencies": {
+    "@actions/core": "^1.6.0",
+    "@actions/exec": "^1.1.1",
+    "@actions/github": "^5.0.1",
+    "@actions/tool-cache": "^1.7.2"
+  },
+  "devDependencies": {
+    "@vercel/ncc": "^0.33.3"
+  }
+}
